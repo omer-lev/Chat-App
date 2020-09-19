@@ -1,0 +1,17 @@
+Front-end:
+    # Create message container that stores all of the messages [X]
+    # Create a form to upload a message [X]
+
+
+Back-end:
+    # Setup chat rooms using UUID [X]
+    # Setup connections using socket.io [X]
+    # Alert when someone connects and disconnects from the chat [X]
+    # Connect users to private rooms and allow them to send messages to eachother [x]
+    # Store messages on mongo database []
+
+Front-end:
+    # Add styling []
+
+Back-end:
+    # Deploy using Heroku/Firebase []
