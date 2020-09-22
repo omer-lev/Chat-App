@@ -3,18 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat App Test</title>
+    <title>Chat App - Room</title>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="styles/index.css">
+    <link rel="stylesheet" href="styles/room.css">
 </head>
 
 <body>
-    <div class="message-container"></div>
+    <div class="message-container">
+        <div><%= room.name %></div>
 
-    <form action="/room" method="POST">
+        <!-- Display exisiting messages from the datatbase -->
+        <% room.messages.forEach(message => { %>
+            <div><%= message.message %></div>
+        <% }) %>
+    </div>
+
+    <!-- Send message -->
+    <form action="/<%= room._id %>" method="POST">
         <input type="text" id="messageInput" name="message">
         <button type="submit">Send</button>
     </form>
@@ -27,6 +35,7 @@
 
 
     <script>
+        
         var socket = io()
         var room_id = "<%= roomId %>"
 
@@ -58,12 +67,18 @@
 
             appendMessage(`You: ${message}`)
 
+            $.post('/<%= room._id %>', {
+                message: message
+            })
+
             $('form').trigger("reset")
 
             socket.on('chat-message', (data) => {
+                console.log(data);
                 appendUserMessage(`${data.name}: ${data.message}`)
             })
         })
+
     </script>
 </body>
 </html>

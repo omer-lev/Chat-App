@@ -19,31 +19,88 @@ var messageSchema = new mongoose.Schema({
     message: String
 })
 
-var Message = mongoose.model("Message", messageSchema)
+var Message = mongoose.model('Message', messageSchema)
 
 
-app.get('/', (req, res) => {
-    res.redirect(`/${uuidv4()}`)
+var roomSchema = new mongoose.Schema({
+    name: String,
+    messages: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Message"
+        }
+    ]
 })
 
-app.get('/:room', (req, res) => {
-    Message.find({}, (err, message) => {
+var Room = mongoose.model('Room', roomSchema)
+
+var users = {}
+
+app.get('/', (req, res) => {
+    Room.find({}, (err, room) => {
         if (err) {
             console.log(err);
+            res.redirect('/')
         } else {
-            res.render('index', {roomId: req.params.room, messages: message})
+            res.render('landing', { rooms: room })
         }
     })
 })
 
-app.post('/room', (req, res) => {
-    var message = req.body.message
-
-
+app.get('/create', (req, res) => {
+    res.render('create')
 })
 
-users = {}
+app.get('/:room', (req, res) => {
+    Room.findById(req.params.room).populate("messages").exec((err, room) => {
+        if (err) {
+            console.log(err);
+            res.redirect('/')
+        } else {
+            res.render('room', { roomId: req.params.room, room: room })
+        }
+    })
+})
 
+// Create a new chat room
+app.post('/create', (req, res) => {
+    var roomName = req.body.roomName
+
+    Room.create({ name: roomName }, (err, room) => {
+        if (err) {
+            console.log(err);
+            res.redirect('/create')
+        } else {
+            res.redirect('/')
+        }
+    })
+})
+
+// Send posted message to the database
+app.post('/:room', (req, res) => {
+    var message = req.body.message
+    // Find room by ID
+    console.log(req.params.room);
+    Room.findById(req.params.room, (err, room) => {
+        if (err) {
+            console.log(err);
+        } else {
+            // Create message in that room
+            Message.create({ message: message }, (err, message) => {
+                if (err) {
+                    console.log(err);
+                } else {
+                    room.messages.push(message)
+                    room.save()
+                }
+            })
+        }
+    })
+    // Connect message to the database
+})
+
+
+// Realtime communication handling
 io.on('connection', (socket) => {
     socket.on('join-room', (roomId, name) => {
         socket.join(roomId)
