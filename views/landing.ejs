@@ -11,24 +11,35 @@
 
 </head>
 <body>
-    <% rooms.forEach(room => { %>
-        <form action="/" method="POST">
-            <a href="/<%= room._id %>" id="roomNameBtn" type="submit" name="roomName"><%= room.name %></a>
-        </form>
-    <% }) %>
+    <nav>
+        <div class="nav-main">
+            <img src="/img/logo.png" alt="">
+            <a href="/">ChatApp</a>
+        </div>
+
+        <div class="nav-options">
+            <ul>
+                <li><a href="/myrooms">My rooms</a></li>
+                <li><a href="/create">Create room</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="main">
+        <div class="phone">
+            <img src="/img/purple_phone.png" alt="">
+        </div>
+
+        <div class="waves">
+            <img src="/img/_Pngtree_abstract_gradient_wave_with_3d_3642786-removebg.png" alt="">
+        </div>
+
+        <div class="main-header">
+            <h2>Chat online</h2>
+            <p>Connect with people all over the world</p>
     
-    <button id="createRoom" type="submit">Create room</button>
-
-
-    <script>
-        $('button').on('click', () => {
-            window.location.href = '/create'
-        })
-
-        // $.post('/', {
-        //     roomName: $('#roomNameBtn').val()
-        // })
-
-    </script>
+            <a href="/myrooms">Start Chatting</a>
+        </div>
+    </div>
 </body>
 </html>

@@ -37,12 +37,16 @@ var Room = mongoose.model('Room', roomSchema)
 var users = {}
 
 app.get('/', (req, res) => {
+    res.render('landing')
+})
+
+app.get('/myrooms', (req, res) => {
     Room.find({}, (err, room) => {
         if (err) {
             console.log(err);
-            res.redirect('/')
+            res.redirect('/myrooms')
         } else {
-            res.render('landing', { rooms: room })
+            res.render('myRooms', { rooms: room })
         }
     })
 })
@@ -51,6 +55,7 @@ app.get('/create', (req, res) => {
     res.render('create')
 })
 
+// Get chat room and find existing messages in it
 app.get('/:room', (req, res) => {
     Room.findById(req.params.room).populate("messages").exec((err, room) => {
         if (err) {
@@ -71,7 +76,7 @@ app.post('/create', (req, res) => {
             console.log(err);
             res.redirect('/create')
         } else {
-            res.redirect('/')
+            res.redirect('/myrooms')
         }
     })
 })
@@ -80,7 +85,6 @@ app.post('/create', (req, res) => {
 app.post('/:room', (req, res) => {
     var message = req.body.message
     // Find room by ID
-    console.log(req.params.room);
     Room.findById(req.params.room, (err, room) => {
         if (err) {
             console.log(err);

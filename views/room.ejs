@@ -60,6 +60,11 @@
             appendUserMessage(name + " disconnected")
         })
 
+        socket.on('chat-message', (data) => {
+            console.log(data.message);
+            appendUserMessage(`${data.name}: ${data.message}`)
+        })
+
         $('form').on('submit', (e) => {
             e.preventDefault()
             var message = $('input').val()
@@ -71,12 +76,7 @@
                 message: message
             })
 
-            $('form').trigger("reset")
-
-            socket.on('chat-message', (data) => {
-                console.log(data);
-                appendUserMessage(`${data.name}: ${data.message}`)
-            })
+            $('form').trigger("reset");
         })
 
     </script>
