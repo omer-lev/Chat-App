@@ -12,18 +12,33 @@
 </head>
 
 <body>
-    <div class="message-container">
-        <div><%= room.name %></div>
+    <nav>
+        <div class="nav-main">
+            <img src="/img/logo.png" alt="">
+            <a href="/">ChatApp</a>
+        </div>
 
+        <div id="roomName"><h2><%= room.name %></h2></div>
+
+        <div class="nav-options">
+            <ul>
+                <li><a href="/myrooms">My rooms</a></li>
+                <li><a href="/create">Create room</a></li>
+                <li><a id="leave-room" href="/myrooms"><button>Leave</button></a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="message-container">
         <!-- Display exisiting messages from the datatbase -->
         <% room.messages.forEach(message => { %>
-            <div><%= message.message %></div>
+            <div id="message"><h3><%= message.message %></h3></div>
         <% }) %>
     </div>
 
     <!-- Send message -->
-    <form action="/<%= room._id %>" method="POST">
-        <input type="text" id="messageInput" name="message">
+    <form action="/<%= room._id %>" method="POST" autocomplete="off">
+        <input type="text" id="messageInput" placeholder="Type something..." name="message">
         <button type="submit">Send</button>
     </form>
 
@@ -40,11 +55,11 @@
         var room_id = "<%= roomId %>"
 
         function appendUserMessage(msg) {
-            $('.message-container').append(`<div id="userMessage">${msg}</div>`)
+            $('.message-container').append(`<div id="userMessageContainer"><div id="userMessage"><h3>${msg}</h3></div></div>`)
         }
 
         function appendMessage(msg) {
-            $('.message-container').append(`<div id="message">${msg}</div>`)
+            $('.message-container').append(`<div id="message"><h3>${msg}</h3></div>`)
         }
 
         var name = prompt('please enter your name: ')

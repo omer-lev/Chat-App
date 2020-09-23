@@ -90,6 +90,7 @@ nav img {
     cursor: pointer;
     border: none;
     outline: none;
+    position: relative;
 }
 
 .waves img {

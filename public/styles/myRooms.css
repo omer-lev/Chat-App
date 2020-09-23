@@ -7,19 +7,9 @@
     margin: 0;
 }
 
-#createRoom {
-    cursor: pointer;
-    padding: 15px;
-    font-size: 18px;
-}
-
 a, a:hover, a:focus, a:active {
     text-decoration: none;
     color: inherit;
-}
-
-a {
-    font-size: 22px;
 }
 
 form input {
@@ -27,4 +17,82 @@ form input {
     background-color: inherit;
     font-size: 22px;
     cursor: pointer;
+}
+
+body {
+    background: linear-gradient(180deg, #895EAB 0%, rgba(164, 96, 217, 0.39) 100%) no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    padding: 15px 5vw 15px 3vw;
+}
+
+nav a {
+    font-weight: 300;
+}
+
+.nav-main {
+    display: flex;
+    align-items: center;
+}
+
+.nav-main a {
+    font-size: 40px;
+    padding-left: 1vw;
+}
+
+.nav-options a {
+    font-size: 29px;
+    padding-left: 4vw;
+}
+
+.nav-options ul li {
+    display: inline-block;
+}
+
+nav img {
+    display: flex;
+    width: 80px;
+}
+
+#createRoom {
+    cursor: pointer;
+    padding: 15px;
+    font-size: 18px;
+}
+
+.contacts {
+    margin-top: 10vh;
+    display: grid;
+    text-align: center;
+    grid-template-columns: auto auto auto;
+    grid-gap: 17vh 0;
+}
+
+.roomNameBtn {
+    width: 200px;
+    height: 200px;
+    display: inline-block;
+    border-radius: 50%;
+}
+
+.roomNameBtn h4 {
+    font-weight: 400;
+    padding-top: 85px;
+    font-size: 20px;
+    color: white;
+}
+
+.create-room {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
