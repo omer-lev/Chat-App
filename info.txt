@@ -11,14 +11,14 @@ Back-end:
     # Setup Mongo database [X]
     # Store messages on Mongo database [X]
     # Show stored messages in the right rooms [X]
-        - Give each room an ID []
-        - Create a collection for each room ID []
+        - Give each room an ID [X]
+        - Create a collection for each room ID [X]
 
 Front-end:
-    # Add styling []
-    # Improve UI/UX []
+    # Add styling [X]
+    # Improve UI/UX [X]
 
 Deployment:
     # Deploy using Heroku/Firebase []
         - Convert everything to be deploy ready []
-        - Change database to use FirebaseDB/MongoDB Atlas []
+        - Change database to use FirebaseDB/MongoDB Atlas [X]

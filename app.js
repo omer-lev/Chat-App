@@ -8,10 +8,11 @@ const mongoose = require('mongoose')
 const { v4: uuidv4 } = require('uuid')
 
 
+
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(express.static('public'))
 
-mongoose.connect('mongodb://localhost/chat-app')
+mongoose.connect('mongodb+srv://omer:omer1103@chatapp.trnfb.mongodb.net/ChatApp?retryWrites=true&w=majority')
 app.set('view engine', 'ejs')
 
 
