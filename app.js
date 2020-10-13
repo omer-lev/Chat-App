@@ -3,6 +3,7 @@ const app = express()
 const server = require('http').createServer(app)
 const io = require('socket.io')(server)
 
+const crypt = require('bcrypt')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const { v4: uuidv4 } = require('uuid')
@@ -11,6 +12,7 @@ const { v4: uuidv4 } = require('uuid')
 
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(express.static('public'))
+app.use(express.json())
 
 mongoose.connect('mongodb+srv://omer:omer1103@chatapp.trnfb.mongodb.net/ChatApp?retryWrites=true&w=majority')
 app.set('view engine', 'ejs')
@@ -35,7 +37,17 @@ var roomSchema = new mongoose.Schema({
 
 var Room = mongoose.model('Room', roomSchema)
 
+
+// var userSchema = new mongoose.Schema({
+//     name: String,
+//     password: String
+// })
+
+// var User = mongoose.model('User', userSchema)
+
+
 var users = {}
+// var authUsers = []
 
 app.get('/', (req, res) => {
     res.render('landing')
@@ -56,6 +68,13 @@ app.get('/create', (req, res) => {
     res.render('create')
 })
 
+// app.get('/users', (req, res) => {
+//     User.find({}, (err, user) => {
+//         res.send(user)
+//     })
+//     // res.json(authUsers)
+// })
+
 // Get chat room and find existing messages in it
 app.get('/:room', (req, res) => {
     Room.findById(req.params.room).populate("messages").exec((err, room) => {
@@ -67,6 +86,41 @@ app.get('/:room', (req, res) => {
         }
     })
 })
+
+// app.post('/users', async (req, res) => {
+//     try {
+//         const hashedPass = await crypt.hash(req.body.password, 10)
+//         const user = { name: req.body.name, password: hashedPass }
+//         // const name = req.body.name
+//         // const password = hashedPass
+
+//         User.create(user)
+//         // authUsers.push(user)
+//         res.status(201).send()
+
+//     } catch {
+//         res.status(500).send()
+//     }
+// })
+
+// app.post('/users/login', async (req, res) => {
+//     // const user = authUsers.find(user => user.name == req.body.name)
+//     // const user = User.find({}, user => user.name == req.body.name)
+    
+//     if (user == null) {
+//         return res.status(400).send('Cannot find user')
+//     }
+
+//     try {
+//         if (await crypt.compare(req.body.password, user.password)) {
+//             res.send('Success')
+//         } else {
+//             res.send('Incorrect password')
+//         }
+//     } catch {
+//         res.status(500).send()
+//     }
+// })
 
 // Create a new chat room
 app.post('/create', (req, res) => {
