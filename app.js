@@ -1,21 +1,59 @@
-const express = require('express')
-const app = express()
-const server = require('http').createServer(app)
-const io = require('socket.io')(server)
+const express = require('express');
+const app = express();
+const server = require('http').createServer(app);
+const io = require('socket.io')(server);
+const session = require('express-session')
+const passport = require('passport');
+const localStrategy = require('passport-local');
+const passportLocalMongoose = require('passport-local-mongoose');
+const flash = require('connect-flash');
 
-const crypt = require('bcrypt')
-const bodyParser = require('body-parser')
-const mongoose = require('mongoose')
-const { v4: uuidv4 } = require('uuid')
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const { v4: uuidv4 } = require('uuid');
 
 
+require('dotenv').config();
+var dbName = process.env.dbName
+var dbUser = process.env.dbUser
+var dbPass = process.env.dbPass
 
-app.use(bodyParser.urlencoded({extended: true}))
-app.use(express.static('public'))
-app.use(express.json())
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(express.static('public'));
+app.use(express.json());
 
-mongoose.connect('mongodb+srv://omer:omer1103@chatapp.trnfb.mongodb.net/ChatApp?retryWrites=true&w=majority')
-app.set('view engine', 'ejs')
+const sessionConfig = {secret: 'ChatApp', resave: false, saveUninitialized: false};
+app.use(session(sessionConfig));
+app.use(flash());
+
+mongoose.connect(`mongodb+srv://${dbUser}:${dbPass}@chatapp.trnfb.mongodb.net/${dbName}?retryWrites=true&w=majority`);
+app.set('view engine', 'ejs');
+
+const UserSchema = new mongoose.Schema({
+    email: {
+        type: String,
+        required: true,
+        unique: true
+    },
+
+    rooms: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Room"
+        }
+    ]
+});
+
+UserSchema.plugin(passportLocalMongoose);
+var User = mongoose.model('User', UserSchema)
+
+
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new localStrategy(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 
 var messageSchema = new mongoose.Schema({
@@ -38,102 +76,115 @@ var roomSchema = new mongoose.Schema({
 var Room = mongoose.model('Room', roomSchema)
 
 
-// var userSchema = new mongoose.Schema({
-//     name: String,
-//     password: String
-// })
-
-// var User = mongoose.model('User', userSchema)
-
-
 var users = {}
-// var authUsers = []
+
 
 app.get('/', (req, res) => {
     res.render('landing')
 })
 
+app.get('/register', (req, res) => {
+    res.render('register')
+})
+
+app.get('/login', (req, res) => {
+    res.render('login');
+})
+
 app.get('/myrooms', (req, res) => {
-    Room.find({}, (err, room) => {
+    var userId = req.user._id
+
+    User.findById(req.user._id).populate("rooms").exec((err, rooms) => {
         if (err) {
             console.log(err);
-            res.redirect('/myrooms')
+            res.redirect('/');
         } else {
-            res.render('myRooms', { rooms: room })
+            console.log(rooms);
+            res.render('myRooms', {rooms: rooms})
         }
     })
+
+    // Room.find({}, (err, room) => {
+    //     if (err) {
+    //         console.log(err);
+    //         res.redirect('/myrooms')
+    //     } else {
+    //         res.render('myRooms', { rooms: room })
+    //     }
+    // })
 })
 
 app.get('/create', (req, res) => {
-    res.render('create')
+    if (!req.isAuthenticated()) {
+        req.flash('error', 'Must be signed in')
+        res.redirect('/login')
+    } else {
+        res.render('create');
+    }
 })
-
-// app.get('/users', (req, res) => {
-//     User.find({}, (err, user) => {
-//         res.send(user)
-//     })
-//     // res.json(authUsers)
-// })
 
 // Get chat room and find existing messages in it
 app.get('/:room', (req, res) => {
+    var name = req.user.username
+
     Room.findById(req.params.room).populate("messages").exec((err, room) => {
         if (err) {
             console.log(err);
             res.redirect('/')
         } else {
-            res.render('room', { roomId: req.params.room, room: room })
+            console.log(room);
+            res.render('room', { roomId: req.params.room, room: room, name: name })
         }
     })
 })
 
-// app.post('/users', async (req, res) => {
-//     try {
-//         const hashedPass = await crypt.hash(req.body.password, 10)
-//         const user = { name: req.body.name, password: hashedPass }
-//         // const name = req.body.name
-//         // const password = hashedPass
-
-//         User.create(user)
-//         // authUsers.push(user)
-//         res.status(201).send()
-
-//     } catch {
-//         res.status(500).send()
-//     }
-// })
-
-// app.post('/users/login', async (req, res) => {
-//     // const user = authUsers.find(user => user.name == req.body.name)
-//     // const user = User.find({}, user => user.name == req.body.name)
-    
-//     if (user == null) {
-//         return res.status(400).send('Cannot find user')
-//     }
-
-//     try {
-//         if (await crypt.compare(req.body.password, user.password)) {
-//             res.send('Success')
-//         } else {
-//             res.send('Incorrect password')
-//         }
-//     } catch {
-//         res.status(500).send()
-//     }
-// })
 
 // Create a new chat room
 app.post('/create', (req, res) => {
     var roomName = req.body.roomName
 
-    Room.create({ name: roomName }, (err, room) => {
+    // find user by ID
+    User.findById(req.user._id, (err, user) => {
         if (err) {
             console.log(err);
-            res.redirect('/create')
         } else {
-            res.redirect('/myrooms')
+            // create room in that user
+            Room.create({ name: roomName }, (err, room) => {
+                if (err) {
+                    console.log(err);
+                    res.redirect('/create')
+                } else {
+                    user.rooms.push(room);
+                    user.save();
+                    res.redirect('/myrooms');
+                }
+            })
         }
     })
+
+    
+})
+
+// flash messages not working
+app.post('/register', async (req, res) => {
+    try {
+        const {email, username, password} = req.body;
+        const user = new User({email, username})
+        const registeredUser = await User.register(user, password);
+
+        req.flash('success', 'Welcome to ChatApp!');
+        res.redirect('/myrooms');
+    } catch (e) {
+        req.flash('error', e.message);
+        res.redirect('/register');
+    }
+    
+})
+
+// flash message not working
+app.post('/login', passport.authenticate('local', { failureFlash: true, failureRedirect: '/login' }), (req, res) => {
+    req.flash('success', 'Welcome back!')
+    res.redirect('/myrooms');
 })
 
 // Send posted message to the database

@@ -62,7 +62,8 @@
             $('.message-container').append(`<div id="message"><h3>${msg}</h3></div>`)
         }
 
-        var name = prompt('please enter your name: ')
+        // var name = prompt('please enter your name: ')
+        var name = "<%= name %>"
         appendMessage("You joined") 
         
         socket.emit('join-room', room_id, name)

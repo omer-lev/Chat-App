@@ -26,7 +26,7 @@
     </nav>
 
     <div class="contacts">
-        <% rooms.forEach(room => { %>
+        <% rooms.rooms.forEach(room => { %>
             <form action="/myrooms" method="POST">
                 <a href="/<%= room._id %>" id="roomNameBtn" type="submit" name="roomName">
                     <div class="roomNameBtn"><h4 id="room-name"><%= room.name %></h4></div>
