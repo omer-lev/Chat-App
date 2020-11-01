@@ -92,26 +92,23 @@ app.get('/login', (req, res) => {
 })
 
 app.get('/myrooms', (req, res) => {
-    var userId = req.user._id
+    try {
+        var userId = req.user._id
 
-    User.findById(req.user._id).populate("rooms").exec((err, rooms) => {
-        if (err) {
-            console.log(err);
-            res.redirect('/');
-        } else {
-            console.log(rooms);
-            res.render('myRooms', {rooms: rooms})
-        }
-    })
-
-    // Room.find({}, (err, room) => {
-    //     if (err) {
-    //         console.log(err);
-    //         res.redirect('/myrooms')
-    //     } else {
-    //         res.render('myRooms', { rooms: room })
-    //     }
-    // })
+        User.findById(req.user._id).populate("rooms").exec((err, rooms) => {
+            if (err) {
+                console.log(err);
+                res.redirect('/');
+            } else {
+                console.log(rooms);
+                res.render('myRooms', {rooms: rooms})
+            }
+        })
+    } catch (e) {
+        req.flash('error', 'You must be logged in!');
+        res.redirect('/login');
+    }
+    
 })
 
 app.get('/create', (req, res) => {
