@@ -4,22 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChatApp - Register</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/register.css">
 </head>
 <body>
-    <h1>Register</h1>
-
-    <form action="/register" method="POST">
-        <div class="username">
-            <input type="text" placeholder="username: " name="username" autocomplete="off">
-        </div>
-        <div class="email">
-            <input type="email" placeholder="email: " name="email">
-        </div>
-        <div class="password">
-            <input type="password" placeholder="password: " name="password">
+    <nav>
+        <div class="nav-main">
+            <img src="/img/logo.png" alt="">
+            <a href="/">ChatApp</a>
         </div>
 
-        <button type="submit">Submit</button>
-    </form>
+        <div class="nav-options">
+            <ul>
+                <li><a href="/myrooms">My rooms</a></li>
+                <li><a href="/create">Create room</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="form-container">
+        <form action="/register" method="POST" autocomplete="off">
+            <h2>Register</h2>
+
+            <div class="inputs">
+                <div class="email">
+                    <input type="email" placeholder="email: " name="email">
+                </div>
+                <div class="username">
+                    <input type="text" placeholder="username: " name="username">
+                </div>
+        
+                <div class="password">
+                    <input type="password" placeholder="password: " name="password">
+                </div>
+            </div>
+    
+            <button type="submit">Login</button>
+        </form>
+    </div>
 </body>
 </html>
