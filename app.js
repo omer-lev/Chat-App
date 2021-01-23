@@ -2,11 +2,6 @@ const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
-const session = require('express-session')
-const passport = require('passport');
-const localStrategy = require('passport-local');
-const passportLocalMongoose = require('passport-local-mongoose');
-const flash = require('connect-flash');
 
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
@@ -14,20 +9,23 @@ const { v4: uuidv4 } = require('uuid');
 
 
 require('dotenv').config();
-var dbName = process.env.dbName
-var dbUser = process.env.dbUser
-var dbPass = process.env.dbPass
+const dbName = process.env.dbName
+const dbUser = process.env.dbUser
+const dbPass = process.env.dbPass
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('public'));
 app.use(express.json());
 
-const sessionConfig = {secret: 'ChatApp', resave: false, saveUninitialized: false};
-app.use(session(sessionConfig));
-app.use(flash());
-
-mongoose.connect(`mongodb+srv://${dbUser}:${dbPass}@chatapp.trnfb.mongodb.net/${dbName}?retryWrites=true&w=majority`);
 app.set('view engine', 'ejs');
+
+
+const connectionOptions = {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useUnifiedTopology: true
+}
+mongoose.connect(`mongodb+srv://${dbUser}:${dbPass}@chatapp.trnfb.mongodb.net/${dbName}?retryWrites=true&w=majority`, connectionOptions);
 
 const UserSchema = new mongoose.Schema({
     email: {
@@ -44,16 +42,7 @@ const UserSchema = new mongoose.Schema({
     ]
 });
 
-UserSchema.plugin(passportLocalMongoose);
 var User = mongoose.model('User', UserSchema)
-
-
-app.use(passport.initialize());
-app.use(passport.session());
-passport.use(new localStrategy(User.authenticate()));
-
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
 
 
 var messageSchema = new mongoose.Schema({
@@ -92,37 +81,36 @@ app.get('/login', (req, res) => {
 })
 
 app.get('/myrooms', (req, res) => {
-    try {
-        var userId = req.user._id
+    // var userId = req.user._id;
 
-        User.findById(req.user._id).populate("rooms").exec((err, rooms) => {
-            if (err) {
-                console.log(err);
-                res.redirect('/');
-            } else {
-                console.log(rooms);
-                res.render('myRooms', {rooms: rooms})
-            }
-        })
-    } catch (e) {
-        req.flash('error', 'You must be logged in!');
-        res.redirect('/login');
-    }
-    
+    // User.findById(req.user._id).populate("rooms").exec((err, rooms) => {
+    //     if (err) {
+    //         console.log(err);
+    //         res.redirect('/');
+    //     } else {
+    //         console.log(rooms);
+    //         res.render('myRooms', {rooms: rooms})
+    //     }
+    // })
+
+    Room.find({}, (err, rooms) => {
+        if (err) {
+            console.log(err);
+            res.redirect('/');
+        } else {
+            res.render('myRooms', {rooms, rooms})
+        }
+    })
 })
 
 app.get('/create', (req, res) => {
-    if (!req.isAuthenticated()) {
-        req.flash('error', 'Must be signed in')
-        res.redirect('/login')
-    } else {
-        res.render('create');
-    }
+    res.render('create');
 })
 
 // Get chat room and find existing messages in it
 app.get('/:room', (req, res) => {
-    var name = req.user.username
+    // var name = req.user.username
+    var name = "name";
 
     Room.findById(req.params.room).populate("messages").exec((err, room) => {
         if (err) {
@@ -141,48 +129,34 @@ app.post('/create', (req, res) => {
     var roomName = req.body.roomName
 
     // find user by ID
-    User.findById(req.user._id, (err, user) => {
+    // User.findById(req.user._id, (err, user) => {
+    //     if (err) {
+    //         console.log(err);
+    //     } else {
+    //         // create room in that user
+    //         Room.create({ name: roomName }, (err, room) => {
+    //             if (err) {
+    //                 console.log(err);
+    //                 res.redirect('/create')
+    //             } else {
+    //                 user.rooms.push(room);
+    //                 user.save();
+    //                 res.redirect('/myrooms');
+    //             }
+    //         })
+    //     }
+    // })
+
+    Room.create({ name: roomName }, (err, room) => {
         if (err) {
             console.log(err);
+            res.redirect('/myrooms');
         } else {
-            // create room in that user
-            Room.create({ name: roomName }, (err, room) => {
-                if (err) {
-                    console.log(err);
-                    res.redirect('/create')
-                } else {
-                    user.rooms.push(room);
-                    user.save();
-                    res.redirect('/myrooms');
-                }
-            })
+            res.redirect('/myrooms');
         }
     })
-
-    
 })
 
-// flash messages not working
-app.post('/register', async (req, res) => {
-    try {
-        const {email, username, password} = req.body;
-        const user = new User({email, username})
-        const registeredUser = await User.register(user, password);
-
-        req.flash('success', 'Welcome to ChatApp!');
-        res.redirect('/myrooms');
-    } catch (e) {
-        req.flash('error', e.message);
-        res.redirect('/register');
-    }
-    
-})
-
-// flash message not working
-app.post('/login', passport.authenticate('local', { failureFlash: true, failureRedirect: '/login' }), (req, res) => {
-    req.flash('success', 'Welcome back!')
-    res.redirect('/myrooms');
-})
 
 // Send posted message to the database
 app.post('/:room', (req, res) => {
