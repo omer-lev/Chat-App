@@ -8,7 +8,9 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="styles/room.css">
+    <link rel="stylesheet" href="/styles/room.css">
+
+    <link rel="icon" href="/img/logo.png">
 </head>
 
 <body>
@@ -23,7 +25,7 @@
         <div class="nav-options">
             <ul>
                 <li><a href="/myrooms">My rooms</a></li>
-                <li><a href="/create">Create room</a></li>
+                <li><a href="/myrooms/create">Create room</a></li>
                 <li><a id="leave-room" href="/myrooms"><button>Leave</button></a></li>
             </ul>
         </div>
@@ -37,7 +39,7 @@
     </div>
 
     <!-- Send message -->
-    <form action="/<%= room._id %>" method="POST" autocomplete="off">
+    <form action="/myrooms/<%= room._id %>" method="POST" autocomplete="off">
         <input type="text" id="messageInput" placeholder="Type something..." name="message">
         <button type="submit">Send</button>
     </form>
@@ -88,7 +90,7 @@
 
             appendMessage(`You: ${message}`)
 
-            $.post('/<%= room._id %>', {
+            $.post('/myrooms/<%= room._id %>', {
                 message: message
             })
 

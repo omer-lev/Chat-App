@@ -8,7 +8,10 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.7.2/min/dropzone.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/create.css">
+
+    <link rel="stylesheet" href="/styles/create.css">
+
+    <link rel="icon" href="/img/logo.png">
 </head>
 <body>
     <nav>
@@ -20,14 +23,14 @@
         <div class="nav-options">
             <ul>
                 <li><a href="/myrooms">My rooms</a></li>
-                <li><a href="/create">Create room</a></li>
+                <li><a href="/myrooms/create">Create room</a></li>
             </ul>
         </div>
     </nav>
 
     <!-- Create new chat room -->
     <div class="form-container">
-        <form action="/create" method="POST" autocomplete="off">
+        <form action="/myrooms/create" method="POST" autocomplete="off">
             <h2>Create Room</h2>
             <input type="text" placeholder="Room name: " name="roomName" maxlength="19"><br>
 
