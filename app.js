@@ -1,5 +1,8 @@
 const express = require('express');
 const app = express();
+const session = require('express-session');
+const flash = require('connect-flash');
+
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 var users = {};
@@ -19,10 +22,29 @@ const dbPass = process.env.dbPass
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('public'));
 app.use(express.json());
+app.set('view engine', 'ejs');
+
+
+const sessionConfig = {
+    secret: 'thisismysecret',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        httpOnly: true, // security measure
+        expires: Date.now() + 1000 * 60 * 60 * 24 * 7, // expiration date in milliseconds
+        maxAge: 1000 * 60 * 60 * 24 * 7
+    }
+}
+app.use(session(sessionConfig));
+app.use(flash());
+
+app.use((req, res, next) => {
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    next();
+})
 
 app.use('/myrooms', myrooms)
-
-app.set('view engine', 'ejs');
 
 
 const connectionOptions = {
@@ -47,6 +69,10 @@ app.get('/login', (req, res) => {
     res.render('login');
 })
 
+app.get('/*', (req, res) => {
+    req.flash('error', 'Unknown address')
+    res.redirect('/');
+})
 
 // Realtime communication handling
 io.on('connection', (socket) => {

@@ -1,0 +1,61 @@
+<style>
+    .alert-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .success-alert {
+        background-color: rgba(1, 255, 1, 0.418);
+        text-align: center;
+        border-radius: 5px;
+        margin-top: 3vh;
+        padding: 8px 10px;
+        cursor: pointer;
+        z-index: 100;
+    }
+
+    .error-alert {
+        background-color: rgba(255, 1, 1, 0.418);
+        text-align: center;
+        border-radius: 5px;
+        margin-top: 3vh;
+        padding: 8px 10px;
+        cursor: pointer;
+        z-index: 100;
+    }
+</style>
+
+
+
+<% if(success && success.length) { %>
+
+<div class="alert-container">
+    <div class="success-alert" role="alert">
+        <%= success %>
+    </div>
+</div>
+
+<% } %>
+
+<% if(error && error.length) { %>
+
+<div class="alert-container">
+    <div class="error-alert" role="alert">
+        <%= error %>
+    </div>
+</div>
+
+<% } %>
+
+
+
+<script>
+    $('.success-alert').on('click', () => {
+        $('.alert-container').css({display: "none"});
+    })
+
+    $('.error-alert').on('click', () => {
+        $('.alert-container').css({display: "none"});
+    })
+</script>

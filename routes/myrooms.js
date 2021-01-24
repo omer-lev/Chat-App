@@ -23,7 +23,7 @@ router.get('/', (req, res) => {
             console.log(err);
             res.redirect('/');
         } else {
-            res.render('myRooms', {rooms, rooms})
+            res.render('myRooms', {rooms: rooms})
         }
     })
 })
@@ -39,8 +39,8 @@ router.get('/:room', (req, res) => {
 
     Room.findById(req.params.room).populate("messages").exec((err, room) => {
         if (err) {
-            console.log(err);
-            res.redirect('/')
+            req.flash('error', 'Cannot find requested room');
+            res.redirect('/myrooms')
         } else {
             res.render('room', { roomId: req.params.room, room: room, name: name })
         }
@@ -76,6 +76,7 @@ router.post('/create', (req, res) => {
             console.log(err);
             res.redirect('/myrooms');
         } else {
+            req.flash('success', 'Successfully created a new room!');
             res.redirect('/myrooms');
         }
     })
@@ -104,5 +105,6 @@ router.post('/:room', (req, res) => {
     })
     // Connect message to the database
 })
+
 
 module.exports = router;
