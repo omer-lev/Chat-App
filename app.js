@@ -8,17 +8,30 @@ const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 var users = {};
 
+const passport = require('passport');
+const passportLocal = require('passport-local');
+
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const { v4: uuidv4 } = require('uuid');
 
 const myrooms = require('./routes/myrooms.js');
-
+const auth = require('./routes/auth.js');
+const User = require('./models/user.js')
 
 require('dotenv').config();
 const dbName = process.env.dbName
 const dbUser = process.env.dbUser
 const dbPass = process.env.dbPass
+
+const connectionOptions = {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useUnifiedTopology: true
+}
+
+mongoose.connect(`mongodb+srv://${dbUser}:${dbPass}@chatapp.trnfb.mongodb.net/${dbName}?retryWrites=true&w=majority`, connectionOptions);
+
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('public'));
@@ -39,35 +52,29 @@ const sessionConfig = {
 app.use(session(sessionConfig));
 app.use(flash());
 
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new passportLocal(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
 app.use((req, res, next) => {
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
     next();
 })
 
+
+// ROOM ROUTES
 app.use('/myrooms', myrooms);
 
-
-const connectionOptions = {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-    useUnifiedTopology: true
-}
-
-mongoose.connect(`mongodb+srv://${dbUser}:${dbPass}@chatapp.trnfb.mongodb.net/${dbName}?retryWrites=true&w=majority`, connectionOptions);
-
+// AUTH ROUTES
+app.use('/', auth);
 
 // BASE ROUTES
 app.get('/', (req, res) => {
     res.render('landing')
-})
-
-app.get('/register', (req, res) => {
-    res.render('register')
-})
-
-app.get('/login', (req, res) => {
-    res.render('login');
 })
 
 app.get('/*', (req, res) => {
