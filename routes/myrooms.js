@@ -68,7 +68,7 @@ router.post('/create', isLoggedIn, (req, res) => {
 })
 
 // Get chat room and find existing messages in it
-router.get('/:room', (req, res) => {
+router.get('/:room', isLoggedIn, (req, res) => {
     // var name = req.user.username
     var name = req.user.username;
 
