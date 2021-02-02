@@ -70,7 +70,7 @@ router.post('/create', isLoggedIn, (req, res) => {
 // Get chat room and find existing messages in it
 router.get('/:room', (req, res) => {
     // var name = req.user.username
-    var name = "name";
+    var name = req.user.username;
 
     Room.findById(req.params.room).populate("messages").exec((err, room) => {
         if (err) {

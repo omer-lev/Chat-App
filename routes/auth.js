@@ -33,13 +33,15 @@ router.get('/login', (req, res) => {
     res.render('login');
 })
 
-router.post('/login', passport.authenticate('local', authSettings ), (req, res) => {
+router.post('/login', passport.authenticate('local', authSettings), (req, res) => {
     req.flash('success', 'welcome back!');
     res.redirect('/myrooms');
 })
 
 router.get('/logout', (req, res) => {
     req.logOut();
+
+    req.flash('success', 'successfully logged out');
     res.redirect('/');
 })
 

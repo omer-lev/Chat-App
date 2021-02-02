@@ -74,7 +74,7 @@ app.use('/', auth);
 
 // BASE ROUTES
 app.get('/', (req, res) => {
-    res.render('landing')
+    res.render('landing');
 })
 
 app.get('/*', (req, res) => {
@@ -89,7 +89,7 @@ io.on('connection', (socket) => {
         users[socket.id] = name
         socket.to(roomId).broadcast.emit('user-connected', name)
 
-        socket.on('send-chat-message', msg => {
+        socket.on('send-chat-message', (msg) => {
             socket.to(roomId).broadcast.emit('chat-message', { message: msg, name: users[socket.id] })
         })    
 
