@@ -19,9 +19,16 @@ router.post('/register', async (req, res) => {
 
         const registeredUser = await User.register(user, password);
 
-        console.log(registeredUser);
-        req.flash('success', 'Welcome to ChatApp!');
-        res.redirect('/myrooms');
+        req.login(registeredUser, (err) => {
+            if (err) {
+                req.flash('error', 'failed to login after registration, please login manually');
+                res.redirect('/login');
+            } else {
+                req.flash('success', 'Welcome to ChatApp!');
+                res.redirect('/myrooms');
+            }
+        })
+
     } catch (error) {
         req.flash('error', 'User already exists!');
         res.redirect('/register');
@@ -35,7 +42,9 @@ router.get('/login', (req, res) => {
 
 router.post('/login', passport.authenticate('local', authSettings), (req, res) => {
     req.flash('success', 'welcome back!');
-    res.redirect('/myrooms');
+    const redirectUrl = req.session.returnTo || '/myrooms';
+    delete req.session.returnTo;
+    res.redirect(redirectUrl);
 })
 
 router.get('/logout', (req, res) => {

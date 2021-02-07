@@ -6,25 +6,13 @@ const User = require('../models/user.js');
 const isLoggedIn = require('../middleware.js')
 
 
-router.get('/', (req, res) => {
-    // var userId = req.user._id;
-
-    // User.findById(req.user._id).populate("rooms").exec((err, rooms) => {
-    //     if (err) {
-    //         console.log(err);
-    //         res.redirect('/');
-    //     } else {
-    //         console.log(rooms);
-    //         res.render('myRooms', {rooms: rooms})
-    //     }
-    // })
-
-    Room.find({}, (err, rooms) => {
+router.get('/', isLoggedIn, (req, res) => {
+    User.findById(req.user._id).populate("rooms").exec((err, user) => {
         if (err) {
             console.log(err);
             res.redirect('/');
         } else {
-            res.render('myRooms', {rooms: rooms})
+            res.render('myRooms', {user: user});
         }
     })
 })
@@ -38,31 +26,23 @@ router.post('/create', isLoggedIn, (req, res) => {
     var roomName = req.body.roomName
 
     // find user by ID
-    // User.findById(req.user._id, (err, user) => {
-    //     if (err) {
-    //         console.log(err);
-    //     } else {
-    //         // create room in that user
-    //         Room.create({ name: roomName }, (err, room) => {
-    //             if (err) {
-    //                 console.log(err);
-    //                 res.redirect('/create')
-    //             } else {
-    //                 user.rooms.push(room);
-    //                 user.save();
-    //                 res.redirect('/myrooms');
-    //             }
-    //         })
-    //     }
-    // })
-
-    Room.create({ name: roomName }, (err, room) => {
+    User.findById(req.user._id, (err, user) => {
         if (err) {
             console.log(err);
-            res.redirect('/myrooms');
         } else {
-            req.flash('success', 'Successfully created a new room!');
-            res.redirect('/myrooms');
+            // create room in that user
+            Room.create({ name: roomName }, (err, room) => {
+                if (err) {
+                    console.log(err);
+                    res.redirect('/create')
+                } else {
+                    user.rooms.push(room);
+                    user.save();
+
+                    res.redirect('/myrooms');
+                    req.flash('success', 'Successfully created a new room!');
+                }
+            })
         }
     })
 })
@@ -77,7 +57,7 @@ router.get('/:room', isLoggedIn, (req, res) => {
             req.flash('error', 'Cannot find requested room');
             res.redirect('/myrooms')
         } else {
-            res.render('room', { roomId: req.params.room, room: room, name: name })
+            res.render('room', { roomId: req.params.room, room: room, name: name });
         }
     })
 })

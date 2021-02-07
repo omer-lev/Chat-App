@@ -60,6 +60,7 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 app.use((req, res, next) => {
+    res.locals.currentUser = req.user;
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
     next();
@@ -77,10 +78,10 @@ app.get('/', (req, res) => {
     res.render('landing');
 })
 
-app.get('/*', (req, res) => {
-    req.flash('error', 'Unknown address')
-    res.redirect('/');
-})
+// app.get('/*', (req, res) => {
+//     req.flash('error', 'Unknown address')
+//     res.redirect('/');
+// })
 
 // Realtime communication handling
 io.on('connection', (socket) => {
