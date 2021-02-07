@@ -24,14 +24,17 @@ router.post('/register', async (req, res) => {
                 req.flash('error', 'failed to login after registration, please login manually');
                 res.redirect('/login');
             } else {
+                const redirectUrl = req.session.returnTo || '/myrooms';
+                delete req.session.returnTo;
+
+                res.redirect(redirectUrl);
                 req.flash('success', 'Welcome to ChatApp!');
-                res.redirect('/myrooms');
             }
         })
 
     } catch (error) {
-        req.flash('error', 'User already exists!');
         res.redirect('/register');
+        req.flash('error', 'User already exists!');
     }
     
 })
@@ -41,10 +44,11 @@ router.get('/login', (req, res) => {
 })
 
 router.post('/login', passport.authenticate('local', authSettings), (req, res) => {
-    req.flash('success', 'welcome back!');
     const redirectUrl = req.session.returnTo || '/myrooms';
     delete req.session.returnTo;
+
     res.redirect(redirectUrl);
+    req.flash('success', 'welcome back!');
 })
 
 router.get('/logout', (req, res) => {
